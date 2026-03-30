@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Login — SmartMess{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-5 col-md-7">
+    <div class="card p-4 p-md-5 shadow-sm" style="border-radius:18px;">
+      <div class="text-center mb-4">
+        <span style="font-size:2.5rem;">🔐</span>
+        <h2 class="fw-bold mt-2" style="font-family:'Sora',sans-serif;">Welcome Back</h2>
+        <p class="text-muted small">Login to rate messes, save favorites, and manage your mess.</p>
+      </div>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Username</label>
+          <input
+            type="text"
+            name="username"
+            class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+            value="{{ form.username.value|default:'' }}"
+            autofocus
+            autocomplete="username"
+          />
+          {% if form.username.errors %}
+            <div class="invalid-feedback">{{ form.username.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Password</label>
+          <input
+            type="password"
+            name="password"
+            class="form-control {% if form.password.errors %}is-invalid{% endif %}"
+            autocomplete="current-password"
+          />
+          {% if form.password.errors %}
+            <div class="invalid-feedback">{{ form.password.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger small py-2 mb-3">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="d-grid mb-3">
+          <button type="submit" class="btn btn-brand btn-lg">
+            <i class="bi bi-box-arrow-in-right me-1"></i> Login
+          </button>
+        </div>
+      </form>
+
+      <div class="text-center text-muted small">
+        Don't have an account?
+        <a href="{% url 'register' %}" class="fw-semibold text-decoration-none" style="color:var(--brand-orange);">Register here</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

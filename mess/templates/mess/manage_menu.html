@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Manage Menu — SmartMess{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+
+    <!-- Menu Info Header -->
+    <div class="card mb-4 p-4" style="border-radius:16px; background:linear-gradient(135deg,#1A1A2E,#16213E); color:#fff; border:none;">
+      <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <div>
+          <h4 class="fw-bold mb-1" style="font-family:'Sora',sans-serif;">{{ menu.mess.name }}</h4>
+          <div class="d-flex gap-2 align-items-center">
+            <span class="badge rounded-pill
+              {% if menu.menu_type == 'GENERAL' %}bg-secondary
+              {% elif menu.menu_type == 'LUNCH' %}bg-warning text-dark
+              {% else %}bg-primary{% endif %}">
+              {% if menu.menu_type == 'GENERAL' %}📋 General
+              {% elif menu.menu_type == 'LUNCH' %}☀️ Lunch
+              {% else %}🌙 Dinner{% endif %}
+            </span>
+            {% if menu.date %}
+              <span class="text-white-50 small"><i class="bi bi-calendar3 me-1"></i>{{ menu.date }}</span>
+            {% endif %}
+          </div>
+        </div>
+        <a href="{% url 'edit_menu' menu.pk %}" class="btn btn-sm btn-outline-light">
+          <i class="bi bi-pencil-fill me-1"></i> Edit Menu Info
+        </a>
+      </div>
+    </div>
+
+    <!-- Add Dish Form -->
+    <div class="card p-4 mb-4" style="border-radius:16px;">
+      <h5 class="fw-bold mb-3" style="font-family:'Sora',sans-serif;">
+        <i class="bi bi-plus-circle-fill text-warning me-2"></i> Add Dish
+      </h5>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="d-flex gap-2">
+          <div class="flex-grow-1">
+            {{ dish_form.name }}
+            {% if dish_form.name.errors %}
+              <div class="text-danger small mt-1">{{ dish_form.name.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <button type="submit" class="btn btn-brand px-4">
+            <i class="bi bi-plus-lg me-1"></i> Add
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Dishes List -->
+    <div class="card p-4" style="border-radius:16px;">
+      <h5 class="fw-bold mb-3" style="font-family:'Sora',sans-serif;">
+        <i class="bi bi-list-ul text-muted me-2"></i> Dishes
+        <span class="badge bg-light text-dark ms-2">{{ dishes|length }}</span>
+      </h5>
+
+      {% if dishes %}
+      <ul class="list-group list-group-flush">
+        {% for dish in dishes %}
+        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+          <span>
+            <i class="bi bi-dot text-warning fs-5"></i>
+            {{ dish.name }}
+          </span>
+          <form method="post" action="{% url 'delete_dish' dish.pk %}">
+            {% csrf_token %}
+            <button type="submit"
+              class="btn btn-sm btn-outline-danger py-0 px-2"
+              onclick="return confirm('Remove {{ dish.name }}?')">
+              <i class="bi bi-trash3-fill" style="font-size:0.8rem;"></i>
+            </button>
+          </form>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="text-muted small mb-0">
+        <i class="bi bi-info-circle me-1"></i> No dishes added yet. Use the form above to add dishes.
+      </p>
+      {% endif %}
+    </div>
+
+    <div class="mt-4">
+      <a href="{% url 'owner_dashboard' %}" class="text-muted text-decoration-none">
+        <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

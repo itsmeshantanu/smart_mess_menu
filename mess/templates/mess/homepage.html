@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}SmartMess — Find Your Perfect Mess{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 78vh;">
+  <div class="col-lg-7 text-center py-5">
+    <div class="mb-4">
+      <span style="font-size:4.5rem;">🍛</span>
+    </div>
+    <h1 class="display-4 fw-bold mb-3" style="font-family:'Sora',sans-serif; color:#1A1A2E;">
+      Find Your Perfect <span style="color:var(--brand-orange);">Mess</span>
+    </h1>
+    <p class="lead text-muted mb-5">
+      Discover daily menus, rate messes, find nearby options and manage your food experience — all in one place.
+    </p>
+
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-5">
+        <a href="{% url 'mess_list' %}" class="text-decoration-none">
+          <div class="card p-4 h-100 text-center border-0 shadow-sm"
+               style="border-radius:18px; border-top:4px solid var(--brand-orange) !important;">
+            <div class="mb-3"><span style="font-size:3rem;">🎓</span></div>
+            <h4 class="fw-bold mb-2" style="font-family:'Sora',sans-serif;">I am a Student</h4>
+            <p class="text-muted small mb-3">Browse messes, view menus, rate & save your favorites.</p>
+            <span class="btn btn-brand w-100">Browse Messes <i class="bi bi-arrow-right"></i></span>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-5">
+        <a href="{% url 'owner_inquiry' %}" class="text-decoration-none">
+          <div class="card p-4 h-100 text-center border-0 shadow-sm"
+               style="border-radius:18px; border-top:4px solid #16213E !important;">
+            <div class="mb-3"><span style="font-size:3rem;">🍽️</span></div>
+            <h4 class="fw-bold mb-2" style="font-family:'Sora',sans-serif;">I am a Mess Owner</h4>
+            <p class="text-muted small mb-3">Register your mess and reach hundreds of students near you.</p>
+            <span class="btn btn-outline-brand w-100">Register Your Mess <i class="bi bi-arrow-right"></i></span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Nearby CTA -->
+    <div class="mt-4">
+      <a href="{% url 'nearby_messes' %}" class="btn btn-outline-secondary px-4">
+        <i class="bi bi-geo-alt-fill text-danger me-1"></i> Find Messes Near Me
+      </a>
+    </div>
+
+    <div class="row g-3 mt-4 text-center">
+      <div class="col-4">
+        <div class="p-3">
+          <div class="fw-bold fs-3" style="color:var(--brand-orange);">100+</div>
+          <div class="text-muted small">Messes Listed</div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="p-3">
+          <div class="fw-bold fs-3" style="color:var(--brand-orange);">Daily</div>
+          <div class="text-muted small">Updated Menus</div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="p-3">
+          <div class="fw-bold fs-3" style="color:var(--brand-orange);">⭐ 4.5</div>
+          <div class="text-muted small">Avg. Rating</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

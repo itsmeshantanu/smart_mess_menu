@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Register — SmartMess{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-5 col-md-7">
+    <div class="card p-4 p-md-5 shadow-sm" style="border-radius:18px;">
+      <div class="text-center mb-4">
+        <span style="font-size:2.5rem;">🎉</span>
+        <h2 class="fw-bold mt-2" style="font-family:'Sora',sans-serif;">Create Account</h2>
+        <p class="text-muted small">Join SmartMess to rate messes and save your favorites.</p>
+      </div>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% for field in form %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold">{{ field.label }}</label>
+          <input
+            type="{{ field.field.widget.input_type }}"
+            name="{{ field.html_name }}"
+            class="form-control {% if field.errors %}is-invalid{% endif %}"
+            {% if field.value %}value="{{ field.value }}"{% endif %}
+            autocomplete="{{ field.html_name }}"
+          />
+          {% if field.errors %}
+            <div class="invalid-feedback">{{ field.errors.0 }}</div>
+          {% endif %}
+          {% if field.help_text %}
+            <div class="form-text text-muted small">{{ field.help_text }}</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="d-grid mt-4 mb-3">
+          <button type="submit" class="btn btn-brand btn-lg">
+            <i class="bi bi-person-plus-fill me-1"></i> Create Account
+          </button>
+        </div>
+      </form>
+
+      <div class="text-center text-muted small">
+        Already have an account?
+        <a href="{% url 'login' %}" class="fw-semibold text-decoration-none" style="color:var(--brand-orange);">Login here</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

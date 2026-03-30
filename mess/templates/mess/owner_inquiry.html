@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Register Your Mess — SmartMess{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6 col-md-8">
+    <div class="card p-4 p-md-5 shadow-sm" style="border-radius:18px;">
+      <div class="text-center mb-4">
+        <span style="font-size:3rem;">🍽️</span>
+        <h2 class="fw-bold mt-2" style="font-family:'Sora',sans-serif;">Register Your Mess</h2>
+        <p class="text-muted">Fill in your details and our team will get in touch with you.</p>
+      </div>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Your Full Name</label>
+          {{ form.name }}
+          {% if form.name.errors %}
+            <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Phone Number</label>
+          {{ form.phone }}
+          {% if form.phone.errors %}
+            <div class="text-danger small mt-1">{{ form.phone.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Mess Name</label>
+          {{ form.mess_name }}
+          {% if form.mess_name.errors %}
+            <div class="text-danger small mt-1">{{ form.mess_name.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Location / Address</label>
+          {{ form.location }}
+          {% if form.location.errors %}
+            <div class="text-danger small mt-1">{{ form.location.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="d-grid">
+          <button type="submit" class="btn btn-brand btn-lg">
+            <i class="bi bi-send-fill me-1"></i> Submit Inquiry
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="text-center mt-3">
+      <a href="{% url 'homepage' %}" class="text-muted text-decoration-none">
+        <i class="bi bi-arrow-left"></i> Back to Home
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

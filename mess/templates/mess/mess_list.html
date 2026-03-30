@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Browse Messes — SmartMess{% endblock %}
+
+
+{% block content %}
+
+<style>
+.card img {
+  transition: 0.3s;
+}
+
+.card img:hover {
+  transform: scale(1.05);
+}
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <h2 class="section-title mb-0">All Messes</h2>
+    <p class="text-muted small mt-1">{{ mess_data|length }} mess{{ mess_data|length|pluralize:"es" }} available</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'nearby_messes' %}" class="btn btn-outline-brand btn-sm">
+      <i class="bi bi-geo-alt-fill me-1"></i> Find Nearby
+    </a>
+    {% if user.is_authenticated %}
+    <a href="{% url 'owner_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-speedometer2 me-1"></i> My Dashboard
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+{% if mess_data %}
+<div class="row g-4">
+  {% for item in mess_data %}
+  <div class="col-lg-4 col-md-6">
+    <div class="card h-100" style="border-radius:16px; overflow:hidden;">
+
+      <!-- TOP IMAGE -->
+      <div style="height:180px; overflow:hidden; background:#f0f0f0; position:relative;">
+        {% if item.cover_photo %}
+          <img src="{{ item.cover_photo.image.url }}" alt="{{ item.mess.name }}"
+               style="width:100%; height:100%; object-fit:cover;">
+        {% else %}
+          <div class="d-flex align-items-center justify-content-center h-100"
+               style="background:linear-gradient(135deg,#1A1A2E,#16213E);">
+            <i class="bi bi-bowl-hot-fill text-warning" style="font-size:3.5rem;"></i>
+          </div>
+        {% endif %}
+
+        {% if item.avg_rating %}
+        <span class="badge position-absolute top-0 end-0 m-2 px-2 py-1 rounded-pill"
+              style="background:rgba(0,0,0,0.65); color:#FFB703; font-size:0.85rem;">
+          ⭐ {{ item.avg_rating }}
+        </span>
+        {% endif %}
+      </div>
+
+      <!-- CARD BODY -->
+      <div class="card-body p-4">
+
+        <!-- IMAGE + NAME -->
+        <div class="d-flex align-items-center gap-3 mb-2">
+
+          {% if item.cover_photo %}
+            <img src="{{ item.cover_photo.image.url }}"
+                 alt="{{ item.mess.name }}"
+                 style="width:50px; height:50px; object-fit:cover; border-radius:12px;">
+          {% else %}
+            <div style="width:50px; height:50px; background:#eee; border-radius:12px;"></div>
+          {% endif %}
+
+          <div class="flex-grow-1">
+            <h5 class="fw-bold mb-0" style="font-family:'Sora',sans-serif;">
+              {{ item.mess.name }}
+            </h5>
+          </div>
+
+          {% if item.is_favorite %}
+          <i class="bi bi-heart-fill text-danger"></i>
+          {% endif %}
+
+        </div>
+
+        <!-- LOCATION -->
+        <p class="text-muted small mb-3">
+          <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ item.mess.location }}
+        </p>
+
+        <!-- RATINGS -->
+        <div class="d-flex gap-2 align-items-center mb-3">
+          {% if item.avg_rating %}
+            <span class="badge rounded-pill px-3 py-2" style="background:var(--brand-orange); color:#fff;">
+              ⭐ {{ item.avg_rating }}
+            </span>
+            <span class="text-muted small">({{ item.rating_count }} review{{ item.rating_count|pluralize }})</span>
+          {% else %}
+            <span class="badge rounded-pill bg-light text-muted px-3 py-2">No ratings yet</span>
+          {% endif %}
+        </div>
+
+        <!-- BUTTONS -->
+        <div class="d-flex gap-2">
+          <a href="{% url 'mess_detail' item.mess.pk %}" class="btn btn-brand btn-sm flex-grow-1">
+            <i class="bi bi-eye-fill me-1"></i> View Menu
+          </a>
+
+          {% if user.is_authenticated %}
+          <form method="post" action="{% url 'toggle_favorite' item.mess.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm {% if item.is_favorite %}btn-danger{% else %}btn-outline-secondary{% endif %}">
+              <i class="bi bi-heart{% if item.is_favorite %}-fill{% endif %}"></i>
+            </button>
+          </form>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="text-center py-5">
+  <span style="font-size:4rem;">🍽️</span>
+  <h4 class="mt-3 fw-bold">No messes listed yet.</h4>
+  <p class="text-muted">Be the first to register your mess!</p>
+  <a href="{% url 'owner_inquiry' %}" class="btn btn-brand mt-2">Register a Mess</a>
+</div>
+{% endif %}
+
+{% endblock %}

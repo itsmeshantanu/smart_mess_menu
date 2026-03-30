@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Owner Dashboard — SmartMess{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="section-title mb-0">Owner Dashboard</h2>
+  <a href="{% url 'create_mess' %}" class="btn btn-brand">
+    <i class="bi bi-plus-circle-fill me-1"></i> Add New Mess
+  </a>
+</div>
+
+{% if messes %}
+  {% for mess in messes %}
+  <div class="card mb-4" style="border-radius:16px; overflow:hidden;">
+
+    <!-- Mess Header with cover photo strip -->
+    <div class="d-flex" style="min-height:110px;">
+      <div style="width:140px; flex-shrink:0; overflow:hidden; background:#1A1A2E; position:relative;">
+        {% with cover=mess.primary_photo %}
+        {% if cover %}
+          <img src="{{ cover.image.url }}" alt="{{ mess.name }}"
+               style="width:100%; height:100%; object-fit:cover; opacity:0.85;">
+        {% else %}
+          <div class="d-flex align-items-center justify-content-center h-100">
+            <i class="bi bi-bowl-hot-fill text-warning" style="font-size:2.5rem;"></i>
+          </div>
+        {% endif %}
+        {% endwith %}
+        <span class="badge bg-dark bg-opacity-75 position-absolute bottom-0 start-0 w-100 text-center py-1"
+              style="font-size:0.7rem;">
+          {{ mess.photos.count }} photo{{ mess.photos.count|pluralize }}
+        </span>
+      </div>
+
+      <div class="p-4 flex-grow-1">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <div>
+            <h4 class="fw-bold mb-0" style="font-family:'Sora',sans-serif;">
+              <i class="bi bi-bowl-hot-fill text-warning me-1"></i>{{ mess.name }}
+            </h4>
+            <span class="text-muted small">
+              <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ mess.location }}
+            </span>
+            {% if mess.latitude and mess.longitude %}
+            <span class="badge bg-success-subtle text-success rounded-pill ms-2" style="font-size:0.72rem;">
+              <i class="bi bi-geo-fill me-1"></i>GPS Set
+            </span>
+            {% else %}
+            <span class="badge bg-warning-subtle text-warning rounded-pill ms-2" style="font-size:0.72rem;">
+              <i class="bi bi-geo me-1"></i>No GPS
+            </span>
+            {% endif %}
+          </div>
+          <div class="d-flex gap-2 flex-wrap">
+            <a href="{% url 'edit_mess' mess.pk %}" class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-pencil-fill me-1"></i> Edit
+            </a>
+            <a href="{% url 'manage_photos' mess.pk %}" class="btn btn-sm btn-outline-warning">
+              <i class="bi bi-images me-1"></i> Photos
+            </a>
+            <a href="{% url 'create_menu' mess.pk %}" class="btn btn-sm btn-brand">
+              <i class="bi bi-plus-circle-fill me-1"></i> Add Menu
+            </a>
+            <a href="{% url 'mess_detail' mess.pk %}" class="btn btn-sm btn-outline-brand">
+              <i class="bi bi-eye-fill me-1"></i> View
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menus Section -->
+    <div class="card-body border-top px-4 py-3">
+      {% with menus=mess.menus.all %}
+      {% if menus %}
+      <h6 class="fw-semibold text-muted mb-3 small text-uppercase" style="letter-spacing:0.06em;">Menus</h6>
+      <div class="row g-3">
+        {% for menu in menus %}
+        <div class="col-md-4">
+          <div class="p-3 border rounded-3 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge rounded-pill
+                {% if menu.menu_type == 'GENERAL' %}bg-secondary
+                {% elif menu.menu_type == 'LUNCH' %}bg-warning text-dark
+                {% else %}bg-primary{% endif %}">
+                {% if menu.menu_type == 'GENERAL' %}📋 General
+                {% elif menu.menu_type == 'LUNCH' %}☀️ Lunch
+                {% else %}🌙 Dinner{% endif %}
+              </span>
+              <a href="{% url 'manage_menu' menu.pk %}" class="btn btn-sm btn-outline-secondary py-0 px-2">
+                <i class="bi bi-pencil" style="font-size:0.75rem;"></i>
+              </a>
+            </div>
+            {% if menu.date %}
+            <div class="text-muted small mb-2"><i class="bi bi-calendar3 me-1"></i>{{ menu.date }}</div>
+            {% endif %}
+            <div class="text-muted small">
+              {% with dishes=menu.dishes.all %}
+              {% if dishes %}
+                {{ dishes|length }} dish{{ dishes|length|pluralize:"es" }}:
+                {% for dish in dishes|slice:":3" %}{{ dish.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                {% if dishes|length > 3 %}…{% endif %}
+              {% else %}
+                <em>No dishes added</em>
+              {% endif %}
+              {% endwith %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-muted small mb-0">
+        <i class="bi bi-info-circle me-1"></i> No menus yet.
+        <a href="{% url 'create_menu' mess.pk %}">Add your first menu →</a>
+      </p>
+      {% endif %}
+      {% endwith %}
+    </div>
+
+  </div>
+  {% endfor %}
+
+{% else %}
+<div class="text-center py-5">
+  <span style="font-size:4rem;">🍽️</span>
+  <h4 class="mt-3 fw-bold">You haven't added any messes yet.</h4>
+  <p class="text-muted">Get started by adding your first mess!</p>
+  <a href="{% url 'create_mess' %}" class="btn btn-brand mt-2">
+    <i class="bi bi-plus-circle-fill me-1"></i> Add Mess
+  </a>
+</div>
+{% endif %}
+{% endblock %}

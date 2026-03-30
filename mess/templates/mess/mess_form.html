@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Mess — SmartMess{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  #picker-map {
+    height: 300px;
+    border-radius: 12px;
+    z-index: 0;
+    border: 2px solid #dee2e6;
+    cursor: crosshair;
+  }
+  #picker-map.active { border-color: var(--brand-orange); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7 col-md-9">
+    <div class="card p-4 p-md-5 shadow-sm" style="border-radius:18px;">
+      <div class="mb-4">
+        <h2 class="fw-bold" style="font-family:'Sora',sans-serif;">
+          {% if action == 'Create' %}
+            <i class="bi bi-plus-circle-fill text-warning me-2"></i> Add New Mess
+          {% else %}
+            <i class="bi bi-pencil-fill text-warning me-2"></i> Edit Mess
+          {% endif %}
+        </h2>
+        <p class="text-muted small mb-0">Fill in the details. Setting GPS coordinates lets students find you on the Nearby map.</p>
+      </div>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Mess Name <span class="text-danger">*</span></label>
+          {{ form.name }}
+          {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Location / Address <span class="text-danger">*</span></label>
+          {{ form.location }}
+          {% if form.location.errors %}<div class="text-danger small mt-1">{{ form.location.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- GPS Section -->
+        <div class="mb-1">
+          <label class="form-label fw-semibold">
+            <i class="bi bi-geo-alt-fill text-danger me-1"></i> GPS Coordinates
+            <span class="badge bg-light text-muted ms-1 fw-normal" style="font-size:0.75rem;">Optional</span>
+          </label>
+          <p class="text-muted small mb-3">
+            Click anywhere on the map to auto-fill coordinates, or type them manually.
+            Leave both empty to skip GPS.
+          </p>
+        </div>
+
+        <!-- Interactive Map Picker -->
+        <div id="picker-map" class="mb-3"></div>
+
+        <div class="row g-3 mb-2">
+          <div class="col-6">
+            <label class="form-label fw-semibold small">Latitude</label>
+            {{ form.latitude }}
+            {% if form.latitude.errors %}<div class="text-danger small mt-1">{{ form.latitude.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-semibold small">Longitude</label>
+            {{ form.longitude }}
+            {% if form.longitude.errors %}<div class="text-danger small mt-1">{{ form.longitude.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="geoBtn">
+            <i class="bi bi-crosshair me-1"></i> Use My Current Location
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="clearGeoBtn">
+            <i class="bi bi-x-circle me-1"></i> Clear Coordinates
+          </button>
+        </div>
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger small">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-brand flex-grow-1">
+            <i class="bi bi-check-circle-fill me-1"></i> {{ action }} Mess
+          </button>
+          <a href="{% url 'owner_dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+  const latInput = document.getElementById('id_latitude');
+  const lngInput = document.getElementById('id_longitude');
+
+  // Initial coords: use existing values or fallback to centre of India
+  const initLat = parseFloat(latInput.value) || 20.5937;
+  const initLng = parseFloat(lngInput.value) || 78.9629;
+  const initZoom = latInput.value ? 14 : 5;
+
+  const map = L.map('picker-map').setView([initLat, initLng], initZoom);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors', maxZoom: 19
+  }).addTo(map);
+
+  let marker = null;
+
+  function placeMarker(lat, lng) {
+    lat = parseFloat(lat.toFixed(6));
+    lng = parseFloat(lng.toFixed(6));
+    latInput.value = lat;
+    lngInput.value = lng;
+    if (marker) {
+      marker.setLatLng([lat, lng]);
+    } else {
+      marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+      marker.on('dragend', e => {
+        const pos = e.target.getLatLng();
+        placeMarker(pos.lat, pos.lng);
+      });
+    }
+    document.getElementById('picker-map').classList.add('active');
+  }
+
+  // If editing and coords already set, show marker immediately
+  if (latInput.value && lngInput.value) {
+    placeMarker(parseFloat(latInput.value), parseFloat(lngInput.value));
+  }
+
+  // Click map to pick location
+  map.on('click', e => placeMarker(e.latlng.lat, e.latlng.lng));
+
+  // Sync manual input → marker
+  [latInput, lngInput].forEach(input => {
+    input.addEventListener('change', () => {
+      const lat = parseFloat(latInput.value);
+      const lng = parseFloat(lngInput.value);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        placeMarker(lat, lng);
+        map.setView([lat, lng], 14);
+      }
+    });
+  });
+
+  // Geolocation button
+  document.getElementById('geoBtn').addEventListener('click', function () {
+    if (!navigator.geolocation) { alert('Geolocation not supported.'); return; }
+    this.disabled = true;
+    this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Locating…';
+    const btn = this;
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        placeMarker(pos.coords.latitude, pos.coords.longitude);
+        map.setView([pos.coords.latitude, pos.coords.longitude], 16);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Location Set';
+      },
+      () => {
+        alert('Could not get location.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-crosshair me-1"></i> Use My Current Location';
+      },
+      { timeout: 10000 }
+    );
+  });
+
+  // Clear button
+  document.getElementById('clearGeoBtn').addEventListener('click', () => {
+    latInput.value = '';
+    lngInput.value = '';
+    if (marker) { map.removeLayer(marker); marker = null; }
+    document.getElementById('picker-map').classList.remove('active');
+  });
+})();
+</script>
+{% endblock %}

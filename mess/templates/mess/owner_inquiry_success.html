@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Inquiry Submitted — SmartMess{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-5 col-md-7 text-center py-5">
+    <div class="card p-5 shadow-sm" style="border-radius:18px;">
+      <div style="font-size:4rem;" class="mb-3">✅</div>
+      <h2 class="fw-bold mb-3" style="font-family:'Sora',sans-serif;">Inquiry Submitted!</h2>
+      <div class="alert alert-success border-0 rounded-3 mb-4">
+        <i class="bi bi-telephone-fill me-2"></i>
+        <strong>Our team will contact you for registration.</strong>
+      </div>
+      <p class="text-muted mb-4">
+        Thank you for your interest in listing your mess on SmartMess. We'll review your details and reach out shortly.
+      </p>
+      <a href="{% url 'homepage' %}" class="btn btn-brand btn-lg">
+        <i class="bi bi-house-fill me-1"></i> Back to Home
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
